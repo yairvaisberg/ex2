@@ -55,14 +55,16 @@ public class Cell {
     public boolean isValidnumbercatch(){
         try{
             double d = Double.parseDouble(getValue());// returns double primitive
-              }
-        catch (NumberFormatException d){
+        }
+        catch (NumberFormatException | NullPointerException | StringIndexOutOfBoundsException  d){
             return false;
         }
-        catch (NullPointerException d){
+        String text = getValue();
+        char firstChar = text.charAt(0);
+        if (text.charAt(text.length()-1)=='.'||firstChar=='.'||firstChar=='+'){
             return false;
         }
-        if ((int)getValue().charAt(getValue().length()-1)=='.'||(int)getValue().charAt(0)=='.'||(int)getValue().charAt(0)=='+'){
+        if (((int)getValue().charAt(0)=='-'&&(int)getValue().charAt(1)=='.')){
             return false;
         }
         return true;
