@@ -52,6 +52,25 @@ public class Cell {
     return true;
     }
 
+    public boolean isValidnumbercatch(){
+        try{
+            double d = Double.parseDouble(getValue());// returns double primitive
+              }
+        catch (NumberFormatException d){
+            return false;
+        }
+        catch (NullPointerException d){
+            return false;
+        }
+        if ((int)getValue().charAt(getValue().length()-1)=='.'||(int)getValue().charAt(0)=='.'||(int)getValue().charAt(0)=='+'){
+            return false;
+        }
+        return true;
+        }
+
+
+
+
 
 
 
