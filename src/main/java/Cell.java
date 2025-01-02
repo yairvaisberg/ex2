@@ -17,6 +17,10 @@ public class Cell {
     boolean isNumber(){
     int numOfDots=0;
 
+    //if value is empty or null its not a number
+    if (getValue()==null||getValue().isEmpty()){
+        return false;
+    }
 
     //return false if number is build like (-.5)
     if (((int)getValue().charAt(0)=='-'&&(int)getValue().charAt(1)=='.')){
