@@ -86,12 +86,40 @@ public class Cell {
         if (texts().charAt(0)!='='){
             return false;
         }
-        int numOfOpen=0;
-        int numOfClose=0;
+
         int base=1;
         int scanner=0;
         String helper;
         int indOfOp=2;
+
+        if (!checkCloserAndOpener(text)){
+            return false;
+        }
+
+        if (text.contains("(")){
+
+
+        }
+
+
+        else {
+            if (!simplecheck(text)){
+                return false;
+            }
+        }
+
+
+
+
+
+        return true;
+    }
+
+    //check if '(' and ')' are allowed
+    public boolean checkCloserAndOpener(String text){
+
+        int numOfOpen=0;
+        int numOfClose=0;
 
         for (int i = 1; i <text.length(); i++) {
             if (text.charAt(i)=='('){
@@ -110,40 +138,48 @@ public class Cell {
                 return false;
             }
         }
-        if (text.contains("(")){
-
-
-        }
-
-
-        else {
-            for (int i = 2; i <text.length(); i++) {
-               if (text.charAt(i)=='+'||text.charAt(i)=='-'||text.charAt(i)=='*'||text.charAt(i)=='/'){
-
-                   helper=text.substring(base,indOfOp);
-                   if (!isNumber(helper)){
-                       return false;
-                   }
-                   base=indOfOp+1;
-                }
-               indOfOp++;
-            }
-            if (indOfOp==text.length()){
-                helper=text.substring(base,indOfOp);
-                if (!isNumber(helper)){
-                    return false;
-                }
-            }
-        }
-
         if (numOfClose!=numOfOpen){
             return false;
         }
 
-
-
         return true;
     }
+
+
+    public boolean simplecheck(String text){
+
+        int base=1;
+        String helper;
+        int indOfOp=2;
+
+        while (indOfOp<text.length()-1){
+            if (text.charAt(indOfOp)=='+'||text.charAt(indOfOp)=='-'||text.charAt(indOfOp)=='*'||text.charAt(indOfOp)=='/'){
+                helper=text.substring(base,indOfOp);
+                if (!isNumber(helper)){
+                    return false;
+                }
+                base=indOfOp+1;
+            }
+            indOfOp++;
+            if (text.charAt(indOfOp)=='-'){
+                indOfOp++;
+            }
+        }
+        if (indOfOp==text.length()){
+            helper=text.substring(base,indOfOp);
+            if (!isNumber(helper)){
+                return false;
+            }
+        }
+
+        if (!isNumber(Character.toString(text.charAt(text.length()-1)))){
+            return false;
+        }
+        return true;
+    }
+
+
+
 
 //נחשב את המחשבון הסופי לסוגריים בעזרת סקאנר ובסיס. הסקאנר עובר עד שהוא מוצא פתח סוגריים ואז שם שם את הסבסיס ואחרי סורק לעוד פתח או סגור סוגריים
     //אם מוצא פתח סוגריים הוא מעביר לשם את הבסיס
