@@ -47,8 +47,6 @@ public class Cell {
     if ((int) texts.charAt(texts.length()-1)=='.'){
         return false;
     }
-
-
     return true;
     }
 
@@ -66,7 +64,6 @@ public class Cell {
         if (((int) texts().charAt(0) == '-' && (int) texts().charAt(1) == '.')) {
             return false;
         }
-
         return true;
     }
 
@@ -86,32 +83,27 @@ public class Cell {
         if (texts().charAt(0)!='='){
             return false;
         }
-
-        int base=1;
-        int scanner=0;
-        String helper;
-        int indOfOp=2;
+//        int base=1;
+//        int scanner=0;
+//        String helper;
+//        int indOfOp=2;
 
         if (!checkCloserAndOpener(text)){
             return false;
         }
 
         if (text.contains("(")){
-
+            if (!simplecheck(text)){
+                return false;
+            }
 
         }
-
 
         else {
             if (!simplecheck(text)){
                 return false;
             }
         }
-
-
-
-
-
         return true;
     }
 
@@ -137,6 +129,9 @@ public class Cell {
             if (text.contains("()")||text.contains(")(")){
                 return false;
             }
+            if (text.contains(" ")){
+                return false;
+            }
         }
         if (numOfClose!=numOfOpen){
             return false;
@@ -151,28 +146,47 @@ public class Cell {
         int base=1;
         String helper;
         int indOfOp=2;
+        int indStart=1;
 
+        while (text.charAt(indStart)=='('){
+            base++;
+            indOfOp++;
+            indStart++;
+        }
         while (indOfOp<text.length()-1){
+
+            if (text.charAt(indOfOp)=='('){
+                base = indOfOp+2;
+                indOfOp++;
+            }
+            if (text.charAt(indOfOp)==')'){
+                indOfOp=indOfOp+2;
+                base = indOfOp+1;
+            }
             if (text.charAt(indOfOp)=='+'||text.charAt(indOfOp)=='-'||text.charAt(indOfOp)=='*'||text.charAt(indOfOp)=='/'){
                 helper=text.substring(base,indOfOp);
+
                 if (!isNumber(helper)){
                     return false;
                 }
                 base=indOfOp+1;
             }
             indOfOp++;
-            if (text.charAt(indOfOp)=='-'){
+            if (indOfOp>=text.length()){
+                indOfOp--;
+            }
+            if (text.charAt(indOfOp)=='+'||text.charAt(indOfOp)=='-'||text.charAt(indOfOp)=='*'||text.charAt(indOfOp)=='/'){
                 indOfOp++;
             }
         }
         if (indOfOp==text.length()){
             helper=text.substring(base,indOfOp);
             if (!isNumber(helper)){
+
                 return false;
             }
         }
-
-        if (!isNumber(Character.toString(text.charAt(text.length()-1)))){
+        if (text.charAt(text.length()-1)!=')'&&!isNumber(Character.toString(text.charAt(text.length()-1)))){
             return false;
         }
         return true;
