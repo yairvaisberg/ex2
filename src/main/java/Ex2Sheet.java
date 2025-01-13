@@ -41,6 +41,9 @@ public class Ex2Sheet implements Sheet {
         String test = c.toString();
         if (test.equals("ERR_CYCLE_FORM")){
 
+            ans = test;
+            return ans;
+
         }
         try {
 
@@ -77,7 +80,6 @@ public class Ex2Sheet implements Sheet {
                     System.out.println(s + " initial string");
 
                     for ( indxL = 0; indxL < s.length(); indxL++) {
-                        System.out.println(indxL  + "indxL 1");
                         if (indxL + 1 < s.length() && isDigit(s.charAt(indxL + 1))) {
                             // Handle case where the cell reference ends at the next digit
                             int endIndex = indxL + 2; // Initially assume the reference is two characters long
@@ -120,7 +122,6 @@ public class Ex2Sheet implements Sheet {
 
                             // Update the loop index to skip over the replaced part
                             indxL = indxL + cellValue.length() - 1; // Adjust based on replacement
-                            System.out.println(indxL + "indxL");
                         }
                     }
 
@@ -128,6 +129,15 @@ public class Ex2Sheet implements Sheet {
 
                     System.out.println("Processed string: " + s);
                     // Check if the string still contains any unresolved cell references
+                    if (s.equals("=ERR_CYCLE_FORM")){
+                        ans="ERR_CYCLE_FORM";
+                        return ans;
+                    }
+                    if (s.contains("CYCLE")){
+                        ans="ERR_CYCLE_FORM";
+                        return ans;
+                    }
+
                     complex = false; // Assume no more unresolved references
                     for (int i = 0; i < ABC.length; i++) {
                         if (s.contains(ABC[i])) {
@@ -135,9 +145,23 @@ public class Ex2Sheet implements Sheet {
                             break;
                         }
                     }
+                    if (c.toString().equals("ERR_CYCLE_FORM")){
+                        ans = "ERR_CYCLE_FORM";
+                        return ans;
+                    }
                 }
                 System.out.println("Processed string before compute: " + s);
-                s = computeForm(s).toString();
+                try {
+                    s = computeForm(s).toString();
+
+                }
+                catch (ArithmeticException d){
+                    s="infinity";
+                }
+                if (s.equals("ERR_CYCLE_FORM")){
+                    ans=s;
+                    return ans;
+                }
                 System.out.println("Processed string after compute: " + s);
                 ans = s;
             }
@@ -150,6 +174,12 @@ public class Ex2Sheet implements Sheet {
         catch (ArrayIndexOutOfBoundsException d){
             set(x,y,"ERR_CYCLE_FORM");
             ans=c.toString();
+        }
+        System.out.println(c.toString() + "  to string ");
+
+        if (c.toString().equals("ERR_CYCLE_FORM")){
+            ans = test;
+            return ans;
         }
 
 
@@ -534,49 +564,52 @@ public class Ex2Sheet implements Sheet {
     }
 
     private  double evaluateExpression(String expression) {
-        double[] numbers = new double[100]; // Stack for numbers
-        char[] operators = new char[100];  // Stack for operators
-        int numTop = -1, opTop = -1;
-        int i = 0;
 
-        while (i < expression.length()) {
-            char c = expression.charAt(i);
+            double[] numbers = new double[100]; // Stack for numbers
+            char[] operators = new char[100];  // Stack for operators
+            int numTop = -1, opTop = -1;
+            int i = 0;
 
-            if (Character.isDigit(c)) {
-                // Parse number
-                int start = i;
-                while (i < expression.length() && (Character.isDigit(expression.charAt(i)) || expression.charAt(i) == '.')) {
-                    i++;
+            while (i < expression.length()) {
+                char c = expression.charAt(i);
+
+                if (Character.isDigit(c)) {
+                    // Parse number
+                    int start = i;
+                    while (i < expression.length() && (Character.isDigit(expression.charAt(i)) || expression.charAt(i) == '.')) {
+                        i++;
+                    }
+                    numbers[++numTop] = Double.parseDouble(expression.substring(start, i));
+                    continue;
+                } else if (c == '(') {
+                    // Push '(' to operators stack
+                    operators[++opTop] = c;
+                } else if (c == ')') {
+                    // Evaluate the expression inside parentheses
+                    while (opTop >= 0 && operators[opTop] != '(') {
+                        numbers[numTop - 1] = applyOperator(operators[opTop--], numbers[numTop], numbers[numTop - 1]);
+                        numTop--;
+                    }
+                    opTop--; // Remove '('
+                } else if (isOperator(c)) {
+                    // Process operator
+                    while (opTop >= 0 && precedence(operators[opTop]) >= precedence(c)) {
+                        numbers[numTop - 1] = applyOperator(operators[opTop--], numbers[numTop], numbers[numTop - 1]);
+                        numTop--;
+                    }
+                    operators[++opTop] = c;
                 }
-                numbers[++numTop] = Double.parseDouble(expression.substring(start, i));
-                continue;
-            } else if (c == '(') {
-                // Push '(' to operators stack
-                operators[++opTop] = c;
-            } else if (c == ')') {
-                // Evaluate the expression inside parentheses
-                while (opTop >= 0 && operators[opTop] != '(') {
-                    numbers[numTop - 1] = applyOperator(operators[opTop--], numbers[numTop], numbers[numTop - 1]);
-                    numTop--;
-                }
-                opTop--; // Remove '('
-            } else if (isOperator(c)) {
-                // Process operator
-                while (opTop >= 0 && precedence(operators[opTop]) >= precedence(c)) {
-                    numbers[numTop - 1] = applyOperator(operators[opTop--], numbers[numTop], numbers[numTop - 1]);
-                    numTop--;
-                }
-                operators[++opTop] = c;
+                i++;
             }
-            i++;
-        }
 
-        // Evaluate the remaining expression
-        while (opTop >= 0) {
-            numbers[numTop - 1] = applyOperator(operators[opTop--], numbers[numTop], numbers[numTop - 1]);
-            numTop--;
-        }
-        return numbers[0];
+            // Evaluate the remaining expression
+            while (opTop >= 0) {
+                numbers[numTop - 1] = applyOperator(operators[opTop--], numbers[numTop], numbers[numTop - 1]);
+                numTop--;
+            }
+            return numbers[0];
+
+
     }
 
     private  boolean isOperator(char c) {
