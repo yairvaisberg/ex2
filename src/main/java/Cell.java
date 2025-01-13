@@ -1,209 +1,42 @@
-public class Cell {
-    private String value;
 
-    public Cell(String value) {
-        this.value = value;
-    }
+/**
+ * ArielU. Intro2CS, Ex2: https://docs.google.com/document/d/1-18T-dj00apE4k1qmpXGOaqttxLn-Kwi/edit?usp=sharing&ouid=113711744349547563645&rtpof=true&sd=true
+ * DO NOT CHANGE THIS INTERFACE!!
+ * This interface represents a spreadsheet entry for Ex2:
+ * Each spreadsheet entry (aka a Cell) which can be:
+ * a number (Double), a String (Text), or a form, the data of each cell is represented as a String (e.g., "abc", "4.2", "=2+3*2", "=A1*(3-A2)".
+ */
+public interface Cell {
+    /**
+     * Return the input text (aka String) this cell was init by (without any computation).
+     * @return
+     */
+    String getData();
 
-    public String texts() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    //a method that validates if value of cell is a number
-    public boolean isNumber(String texts){
-    int numOfDots=0;
-
-    //if value is empty or null its not a number
-    if (texts==null||texts.isEmpty()){
-        return false;
-    }
-
-    //return false if number is build like (-.5)
-    if (((int)texts.charAt(0)=='-'&&(int)texts.charAt(1)=='.')){
-            return false;
-    }
-
-    //check if first char of text isnt between 0-9 and not minus sign, if its not then return false
-    if (((int) texts.charAt(0)>57||(int) texts.charAt(0)<48)&&(int) texts.charAt(0)!='-'){
-        return false;
-    }
-    //check if first char of text isnt between 0-9 and not dot sign if its not then return false and also count the number of dots
-    for (int i = 1; i< texts.length(); i++){
-        if ((int) texts.charAt(i)!='.'&&((int) texts.charAt(i)>57||(int) texts.charAt(i)<48)){
-            return false;
-        }
-        if ((int) texts.charAt(i)=='.'){
-            numOfDots++;
-        }
-    }
-    if (numOfDots>1){
-        return false;
-    }
-    //if last char is dot, if it is then return false
-    if ((int) texts.charAt(texts.length()-1)=='.'){
-        return false;
-    }
-    return true;
-    }
-
-    public boolean isValidnumbercatch(String texts) {
-        try {
-            double d = Double.parseDouble(texts());// returns double primitive
-        } catch (NumberFormatException | NullPointerException | StringIndexOutOfBoundsException d) {
-            return false;
-        }
-        String text = texts();
-        char firstChar = text.charAt(0);
-        if (text.charAt(text.length() - 1) == '.' || firstChar == '.' || firstChar == '+') {
-            return false;
-        }
-        if (((int) texts().charAt(0) == '-' && (int) texts().charAt(1) == '.')) {
-            return false;
-        }
-        return true;
-    }
+    /** Changes the underline string of this cell
+     *  */
+    void setData(String s);
 
 
-    public boolean isText(String text){
+    /**
+     * Returns the type of this cell {TEXT,NUMBER, FORM, ERR_CYCLE_FORM, ERR_WRONG_FORM}
+     * @return an int value (as defined in Ex2Utils)
+     */
+    public int getType();
 
-        if (isNumber(texts())) {
-            return false;
-        }
-        if (texts().charAt(0)=='='){
-            return false;
-        }
-        return true;
-    }
-
-    public boolean isForm(String text){
-        if (texts().charAt(0)!='='){
-            return false;
-        }
-//        int base=1;
-//        int scanner=0;
-//        String helper;
-//        int indOfOp=2;
-
-        if (!checkCloserAndOpener(text)){
-            return false;
-        }
-
-        if (text.contains("(")){
-            if (!simplecheck(text)){
-                return false;
-            }
-
-        }
-
-        else {
-            if (!simplecheck(text)){
-                return false;
-            }
-        }
-        return true;
-    }
-
-    //check if '(' and ')' are allowed
-    public boolean checkCloserAndOpener(String text){
-
-        int numOfOpen=0;
-        int numOfClose=0;
-
-        for (int i = 1; i <text.length(); i++) {
-            if (text.charAt(i)=='('){
-                numOfOpen++;
-            }
-            if (text.charAt(i)==')'){
-                numOfClose++;
-            }
-            if (text.charAt(1)==')'||text.charAt(text.length()-1)=='('){
-                return false;
-            }
-            if (numOfClose>numOfOpen){
-                return false;
-            }
-            if (text.contains("()")||text.contains(")(")){
-                return false;
-            }
-            if (text.contains(" ")){
-                return false;
-            }
-        }
-        if (numOfClose!=numOfOpen){
-            return false;
-        }
-
-        return true;
-    }
-
-
-    public boolean simplecheck(String text){
-
-        int base=1;
-        String helper;
-        int indOfOp=2;
-        int indStart=1;
-
-        while (text.charAt(indStart)=='('){
-            base++;
-            indOfOp++;
-            indStart++;
-        }
-        while (indOfOp<text.length()-1){
-
-            if (text.charAt(indOfOp)=='('){
-                base = indOfOp+2;
-                indOfOp++;
-            }
-            if (text.charAt(indOfOp)==')'){
-                indOfOp=indOfOp+2;
-                base = indOfOp+1;
-            }
-            if (text.charAt(indOfOp)=='+'||text.charAt(indOfOp)=='-'||text.charAt(indOfOp)=='*'||text.charAt(indOfOp)=='/'){
-                helper=text.substring(base,indOfOp);
-
-                if (!isNumber(helper)){
-                    return false;
-                }
-                base=indOfOp+1;
-            }
-            indOfOp++;
-            if (indOfOp>=text.length()){
-                indOfOp--;
-            }
-            if (text.charAt(indOfOp)=='+'||text.charAt(indOfOp)=='-'||text.charAt(indOfOp)=='*'||text.charAt(indOfOp)=='/'){
-                indOfOp++;
-            }
-        }
-        if (indOfOp==text.length()){
-            helper=text.substring(base,indOfOp);
-            if (!isNumber(helper)){
-
-                return false;
-            }
-        }
-        if (text.charAt(text.length()-1)!=')'&&!isNumber(Character.toString(text.charAt(text.length()-1)))){
-            return false;
-        }
-        return true;
-    }
-
-
-
-
-//נחשב את המחשבון הסופי לסוגריים בעזרת סקאנר ובסיס. הסקאנר עובר עד שהוא מוצא פתח סוגריים ואז שם שם את הסבסיס ואחרי סורק לעוד פתח או סגור סוגריים
-    //אם מוצא פתח סוגריים הוא מעביר לשם את הבסיס
-    //אם הוא מוצא סגור סוגריים הוא נשאר שם ואז יש את האינדקס של הסוגריים הכי פניניים
-    //אחרי זה מעבירים את הביטוי בתוך הסוגריים לסטרינג חדש פותרים ואז מחליפים את התוצאה בסטרינג המקורי
-    //עושים זאת עד שלא נשאר סוגריים ואחרי זה פשוט פותרים רגיל
-
-
-
-    public String toString() {
-        return texts();
-    }
+    /**
+     * Changes the type of this Cell {TEXT,NUMBER, FORM, ERR_CYCLE_FORM, ERR_WRONG_FORM}
+     * @param t an int type value as defines in Ex2Utils.
+     */
+    public void setType(int t);
+    /**
+     * Computes the natural order of this entry (cell) in case of a number or a String =0, else 1+ the max of all dependent cells.
+     * @return an integer representing the "number of rounds" needed to compute this cell (using an iterative approach)..
+     */
+    public int getOrder();
+    /**
+     * Changes the order of this Cell
+     * @param
+     */
+    public void setOrder(int t);
 }
