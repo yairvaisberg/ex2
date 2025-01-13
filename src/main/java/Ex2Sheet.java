@@ -38,7 +38,10 @@ public class Ex2Sheet implements Sheet {
             ans=c.toString();
 //            Text = 2;
         }
+        String test = c.toString();
+        if (test.equals("ERR_CYCLE_FORM")){
 
+        }
         try {
 
 
@@ -66,8 +69,7 @@ public class Ex2Sheet implements Sheet {
                     }
                 }
 
-
-// Manual tracking of visited cells using an array
+                // Manual tracking of visited cells using an array
                 String[] visitedCells = new String[100]; // Adjust size as needed
                 int visitedIndex = 0;
 
@@ -75,6 +77,7 @@ public class Ex2Sheet implements Sheet {
                     System.out.println(s + " initial string");
 
                     for ( indxL = 0; indxL < s.length(); indxL++) {
+                        System.out.println(indxL  + "indxL 1");
                         if (indxL + 1 < s.length() && isDigit(s.charAt(indxL + 1))) {
                             // Handle case where the cell reference ends at the next digit
                             int endIndex = indxL + 2; // Initially assume the reference is two characters long
@@ -89,46 +92,41 @@ public class Ex2Sheet implements Sheet {
                             System.out.println(cell + " cell reference found");
 
                             // Check for circular reference by searching in visitedCells
+                            boolean circular = false;
                             for (int i = 0; i < visitedIndex; i++) {
                                 if (visitedCells[i].equals(cell)) {
-                                    System.out.println("Circular reference detected: " + cell);
-                                    s = "ERR_CYCLE_FORM"; // Return the error result
-                                    complex = false;     // Exit the loop
+                                    circular = true;
                                     break;
                                 }
                             }
 
-                            if ("ERR_CYCLE_FORM".equals(s)) {
-                                break; // Break outer loop if error was set
+                            // If circular, throw StackOverflowError
+                            if (circular) {
+                                throw new StackOverflowError("Circular reference detected: " + cell);
                             }
 
                             // Add the cell to visitedCells
                             visitedCells[visitedIndex++] = cell;
 
-                            // Simulate recursive cell resolution
-                            String cellValue = getCellValue(cell); // Resolve the cell value
-                            if ("ERR_CYCLE_FORM".equals(cellValue)) {
-                                s = "ERR_CYCLE_FORM"; // Propagate the error if detected in recursion
-                                complex = false;     // Exit the loop
-                                break;
-                            }
-
                             // Replace the cell reference with its value
+                            String cellValue = getCellValue(cell); // Get the value of the cell
+                            System.out.println(s + " before replacement");
                             s = replaceSubstring(s, indxL, endIndex, cellValue);
                             System.out.println(s + " after replacement");
-
+                            //  s= "=" + Double.toString(computeForm(s));
+                            System.out.println(s + " after computeForm");
                             // Remove the cell from visitedCells after processing
                             visitedIndex--;
 
                             // Update the loop index to skip over the replaced part
                             indxL = indxL + cellValue.length() - 1; // Adjust based on replacement
+                            System.out.println(indxL + "indxL");
                         }
                     }
 
-                    if ("ERR_CYCLE_FORM".equals(s)) {
-                        break; // Exit the outer loop if error was set
-                    }
 
+
+                    System.out.println("Processed string: " + s);
                     // Check if the string still contains any unresolved cell references
                     complex = false; // Assume no more unresolved references
                     for (int i = 0; i < ABC.length; i++) {
@@ -137,12 +135,10 @@ public class Ex2Sheet implements Sheet {
                             break;
                         }
                     }
-
-                    System.out.println("Processed string: " + s);
                 }
-
+                System.out.println("Processed string before compute: " + s);
                 s = computeForm(s).toString();
-
+                System.out.println("Processed string after compute: " + s);
                 ans = s;
             }
         }
@@ -530,10 +526,6 @@ public class Ex2Sheet implements Sheet {
 
 
 
-
-
-
-
     public  Double computeForm(String form) {
         // Remove the '=' from the first character since it's already verified to exist.
         String expression = form.substring(1);
@@ -584,7 +576,6 @@ public class Ex2Sheet implements Sheet {
             numbers[numTop - 1] = applyOperator(operators[opTop--], numbers[numTop], numbers[numTop - 1]);
             numTop--;
         }
-
         return numbers[0];
     }
 
